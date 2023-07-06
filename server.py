@@ -1,21 +1,14 @@
 from xmlrpc.server import SimpleXMLRPCServer
-from xmlrpc.server import SimpleXMLRPCRequestHandler
 
 
-# Ограничение доступа определенным путям.
-class RequestHandler(SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/RPC2',)
-
-
-server = SimpleXMLRPCServer(('localhost', 8080), requestHandler=RequestHandler)
+server = SimpleXMLRPCServer(('localhost', 8080))
 
 
 class ServerMethods:
-    def auth(self):
-        pass
+    def auth(self, message):
+        return message
 
 
-# Создаем сервер
 server.register_introspection_functions()
 server.register_instance(ServerMethods())
 
