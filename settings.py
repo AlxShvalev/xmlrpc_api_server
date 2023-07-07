@@ -5,6 +5,10 @@ class Settings:
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
 
+    SESSION_LIFETIME: int = 60 * 30 # Seconds
+
+    DH_SECRET_KEY: int = 344471
+
     @property
     def database_url(self) -> str:
         """Get DB connection url."""
