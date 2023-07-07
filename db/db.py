@@ -8,6 +8,6 @@ engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(engine, class_=Session)
 
 
-def get_session():
+def get_db_session():
     with SessionLocal() as session:
         return session
