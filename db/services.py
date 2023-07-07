@@ -11,45 +11,33 @@ class DBService:
         self.__db_session = db_session
 
     def get_user(self, username) -> User:
-        stmt = select(User.id, User.username, User.password).where(User.username == username)
+        stmt = select(User).where(User.username == username)
         user = self.__db_session.execute(stmt)
-        return user.first()
+        return user.scalars().first()
 
     def get_data(self, key) -> Data:
-        stmt = select(Data.key, Data.data).where(Data.key == key)
+        stmt = select(Data).where(Data.key == key)
         data = self.db_session.execute(stmt)
-        return data.first()
+        return data.scalars().first()
 
     def get_session(self, session_id: UUID) -> Session:
-        stmt = select(
-            Session.id,
-            Session.user_id,
-            Session.expired_date,
-            Session.pub_key_1,
-            Session.pub_key_2,
-            Session.partial_key_client,
-            Session.partial_key_server,
-            Session.challenge
-        ).where(Session.id == session_id)
+        stmt = select(Session).where(Session.id == session_id)
         session = self.__db_session.execute(stmt)
-        return session.first()
+        return session.scalars().first()
 
     def get_session_by_user_id(self, user_id: int) -> Session:
-        stmt = select(
-            Session.id,
-            Session.user_id,
-            Session.expired_date,
-            Session.pub_key_1,
-            Session.pub_key_2,
-            Session.partial_key_client,
-            Session.partial_key_server,
-            Session.challenge
-        ).where(Session.user_id == user_id)
+        stmt = select(Session).where(Session.user_id == user_id)
         session = self.__db_session.execute(stmt)
-        return session.first()
+        return session.scalars().first()
 
     def create_session(self, session: Session) -> Session:
         self.__db_session.add(session)
+        self.__db_session.commit()
+        self.__db_session.refresh(session)
+        return session
+
+    def update_session(self, session: Session) -> Session:
+        session = self.__db_session.merge(session)
         self.__db_session.commit()
         self.__db_session.refresh(session)
         return session

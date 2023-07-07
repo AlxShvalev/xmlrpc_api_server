@@ -15,9 +15,9 @@ class ServerService:
     def get_user(self, username: str, password: str) -> User:
         user = self.__db_service.get_user(username)
         if user is None:
-            return "User not found."
+            raise Exception("User not found.")
         if user.password != password:
-            return "Password incorrect."
+            raise Exception("Password incorrect.")
         return user
 
     def create_session(self, user: User) -> str:
@@ -43,11 +43,11 @@ class ServerService:
             session.pub_key_1 = int(pub_keys["pub_key1"])
             session.pub_key_2 = int(pub_keys["pub_key2"])
             session.partial_key_client = int(pub_keys["partial_key_client"])
-            encrypt = DHEncrypt(session["pub_key1"], session["pub_key2"], settings.DH_SECRET_KEY)
         except:
-            return "Required keys are missing."
+            raise Exception("Required keys are missing.")
+        encrypt = DHEncrypt(session.pub_key_1, session.pub_key_2, settings.DH_SECRET_KEY)
         session.partial_key_server = encrypt.generate_partial_key()
-        session = self.__db_service.create_session(session)
+        session = self.__db_service.update_session(session)
         return session.partial_key_server
 
 
