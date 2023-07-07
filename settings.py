@@ -1,4 +1,7 @@
 class Settings:
+    SERVER_HOST: str = "localhost"
+    SERVER_PORT: int = 8080
+
     DB_NAME: str = "xmlrpc_encrypt"
     DB_USER: str = "postgres"
     DB_PASSWORD: str = "postgres"

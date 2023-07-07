@@ -2,9 +2,10 @@ from uuid import UUID
 from xmlrpc.server import SimpleXMLRPCServer
 
 from server_services import server_service
+from settings import settings
 
 
-server = SimpleXMLRPCServer(('localhost', 8080), allow_none=True)
+server = SimpleXMLRPCServer((settings.SERVER_HOST, settings.SERVER_PORT), allow_none=True, use_builtin_types=True)
 
 
 class ServerMethods:
