@@ -1,6 +1,4 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Optional
 from uuid import UUID
 
 from DH_encrypt import DHEncrypt
@@ -8,22 +6,30 @@ from db.models import Session, User
 from db.services import DBService, db_service
 from settings import settings
 
+
 class ServerService:
 
     def __init__(self, db_service: DBService) -> None:
         self.__db_service = db_service
 
-    def get_user(self, username: str) -> User:
-        return self.__db_service.get_user(username)
+    def get_user(self, username: str, password: str) -> User:
+        user = self.__db_service.get_user(username)
+        if user is None:
+            return "User not found."
+        if user.password != password:
+            return "Password incorrect."
+        return user
 
-    def create_session(self, user: User) -> UUID:
+    def create_session(self, user: User) -> str:
+        session = self.__db_service.get_session_by_user_id(user.id)
+        if session:
+            return str(session.id)
         session = Session(
             user_id=user.id,
-            expired_date=datetime.now() + timedelta(settings.SESSION_LIFETIME),
+            expired_date=datetime.now() + timedelta(seconds=settings.SESSION_LIFETIME),
         )
         session = self.__db_service.create_session(session)
-        print("session =", session)
-        return session.id
+        return str(session.id)
 
     def __session_is_expired(self, session: Session) -> bool:
         return True if session.expired_date < datetime.now() else False
@@ -31,6 +37,7 @@ class ServerService:
     def get_partial_key(self, session_id: UUID, pub_keys: dict) -> int:
         session = self.__db_service.get_session(session_id)
         if self.__session_is_expired(session):
+            self.__db_service.delete_session(session)
             return "Session is expired. Please sign in again."
         try:
             session.pub_key_1 = int(pub_keys["pub_key1"])

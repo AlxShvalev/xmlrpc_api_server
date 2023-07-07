@@ -5,17 +5,12 @@ from server_services import server_service
 from settings import settings
 
 
-server = SimpleXMLRPCServer((settings.SERVER_HOST, settings.SERVER_PORT), allow_none=True, use_builtin_types=True)
+server = SimpleXMLRPCServer((settings.SERVER_HOST, settings.SERVER_PORT), allow_none=True)
 
 
 class ServerMethods:
     def auth(self, username, password):
-        user = server_service.get_user(username)
-        print("auth user =", user)
-        if user is None:
-            return "User not found."
-        if user.password != password:
-            return "Password incorrect."
+        user = server_service.get_user(username, password)
         return server_service.create_session(user)
 
     def get_partial_key(self, session_id: UUID, pub_keys) -> int:
