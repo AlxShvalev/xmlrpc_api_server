@@ -1,5 +1,5 @@
 from db.models import create_db_tables
-from server import server
+from server.server import server
 
 
 def main():

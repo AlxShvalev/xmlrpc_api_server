@@ -1,7 +1,7 @@
 from uuid import UUID
 from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
-from server_services import server_service
+from server.services import server_service
 from settings import settings
 
 
