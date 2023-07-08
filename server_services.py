@@ -1,3 +1,5 @@
+import random
+import string
 from datetime import datetime, timedelta
 from uuid import UUID
 
@@ -5,6 +7,13 @@ from DH_encrypt import DHEncrypt
 from db.models import Session, User
 from db.services import DBService, db_service
 from settings import settings
+
+
+def generate_random_string() -> str:
+    length = random.randint(settings.CHALLENGE_MIN_LENGTH,
+                            settings.CHALLENGE_MAX_LENGTH)
+    letters = string.ascii_letters
+    return ''.join(random.choice(letters) for i in range(length))
 
 
 class ServerService:
@@ -48,10 +57,22 @@ class ServerService:
             session.partial_key_client = int(pub_keys["partial_key_client"])
         except:
             raise Exception("Required public keys are missing.")
-        encrypt = DHEncrypt(session.pub_key_1, session.pub_key_2, settings.DH_SECRET_KEY)
+        encrypt = DHEncrypt(
+            session.pub_key_1,
+            session.pub_key_2,
+            settings.DH_SECRET_KEY
+        )
         session.partial_key_server = encrypt.generate_partial_key()
         session = self.__db_service.update_session(session)
         return session.partial_key_server
+
+    def get_challenge(self, session: UUID) -> str:
+        session = self.__db_service.get_session(session)
+        session = self.__session_is_expired(session)
+        challenge = generate_random_string()
+        session.challenge = challenge
+        self.__db_service.update_session(session)
+        return challenge
 
 
 server_service = ServerService(db_service)
