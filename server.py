@@ -1,11 +1,19 @@
 from uuid import UUID
-from xmlrpc.server import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
 from server_services import server_service
 from settings import settings
 
 
-server = SimpleXMLRPCServer((settings.SERVER_HOST, settings.SERVER_PORT), allow_none=True)
+class RequestHandler(SimpleXMLRPCRequestHandler):
+    rpc_server = ("/RPC2")
+
+
+server = SimpleXMLRPCServer(
+    (settings.SERVER_HOST, settings.SERVER_PORT),
+    requestHandler=RequestHandler,
+    allow_none=True
+)
 
 
 class ServerMethods:
@@ -15,6 +23,9 @@ class ServerMethods:
 
     def get_partial_key(self, session_id: UUID, pub_keys) -> int:
         return server_service.get_partial_key(session_id, pub_keys)
+
+    def get_challenge(self, session_id: UUID) -> str:
+        return server_service.get_challenge(session_id)
 
     def shutdown(self):
         server.shutdown()
