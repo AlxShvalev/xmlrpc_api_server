@@ -9,6 +9,8 @@ class Settings:
     DB_PORT: str = "5432"
 
     SESSION_LIFETIME: int = 60 * 30 # Seconds
+    CHALLENGE_MIN_LENGTH: int = 30
+    CHALLENGE_MAX_LENGTH: int = 60
 
     DH_SECRET_KEY: int = 344471
 
