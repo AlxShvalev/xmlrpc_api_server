@@ -17,7 +17,6 @@ class Settings:
     @property
     def database_url(self) -> str:
         """Get DB connection url."""
-        # return "sqlite:///sqlite3.db"
         return (
             "postgresql+psycopg2://"
             f"{self.DB_USER}:{self.DB_PASSWORD}"
