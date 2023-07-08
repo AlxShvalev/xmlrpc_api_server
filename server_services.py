@@ -52,28 +52,25 @@ class ServerService:
     def get_partial_key(self, session_id: UUID, pub_keys: dict) -> int:
         session = self.__db_service.get_session(session_id)
         session = self.__check_session(session)
-        if session.partial_key_server:
-            return session.partial_key_server
         try:
-            session.pub_key_1 = int(pub_keys["pub_key1"])
-            session.pub_key_2 = int(pub_keys["pub_key2"])
-            session.partial_key_client = int(pub_keys["partial_key_client"])
+            pub_key_1 = int(pub_keys["pub_key1"])
+            pub_key_2 = int(pub_keys["pub_key2"])
+            partial_key_client = int(pub_keys["partial_key_client"])
         except:
             raise Exception("Required public keys are missing or not integer.")
         encrypt = DHEncrypt(
-            session.pub_key_1,
-            session.pub_key_2,
+            pub_key_1,
+            pub_key_2,
             settings.DH_SECRET_KEY
         )
-        session.partial_key_server = encrypt.generate_partial_key()
-        session = self.__db_service.update_session(session)
-        return session.partial_key_server
+        partial_key_server = encrypt.generate_partial_key()
+        session.secret_key = encrypt.generate_full_key(partial_key_client)
+        self.__db_service.update_session(session)
+        return partial_key_server
 
     def get_challenge(self, session: UUID) -> str:
         session = self.__db_service.get_session(session)
         session = self.__check_session(session)
-        if session.challenge:
-            return session.challenge
         challenge = generate_random_string()
         session.challenge = challenge
         self.__db_service.update_session(session)

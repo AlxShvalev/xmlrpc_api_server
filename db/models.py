@@ -32,13 +32,10 @@ class Session(Base):
     user_id = Column(INT, ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="session")
     expired_date = Column(TIMESTAMP, nullable=False)
-    pub_key_1 = Column(INT)
-    pub_key_2 = Column(INT)
-    partial_key_client = Column(INT)
-    partial_key_server = Column(INT)
-    challenge = Column(String(1024))
+    secret_key = Column(INT, nullable=True)
+    challenge = Column(String(1024), nullable=True)
 
 
-if __name__ == "__main__":
-    from db import engine
+def create_db_tables():
+    from db.db import engine
     Base.metadata.create_all(engine)
