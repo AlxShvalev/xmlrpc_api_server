@@ -14,17 +14,3 @@ class DHEncrypt:
         full_key = full_key % self.pub_key2
         self.full_key = full_key
         return full_key
-
-    def encrypt_message(self, message: str) -> str:
-        encrypted_message = ""
-        key = self.full_key
-        for c in message:
-            encrypted_message += chr(ord(c) + key)
-        return encrypted_message
-
-    def decrypt_message(self, message: str) -> str:
-        decrypt_message = ""
-        key = self.full_key
-        for c in message:
-            decrypt_message += chr(ord(c) - key)
-        return decrypt_message
