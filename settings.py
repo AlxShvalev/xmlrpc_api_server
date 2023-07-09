@@ -12,6 +12,8 @@ class Settings:
     CHALLENGE_MIN_LENGTH: int = 30
     CHALLENGE_MAX_LENGTH: int = 60
 
+    PUBLIC_KEY1: int = 28491
+    PUBLIC_KEY2: int = 6007
     DH_SECRET_KEY: int = 344471
 
     @property

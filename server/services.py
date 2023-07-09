@@ -3,11 +3,11 @@ import hmac
 import random
 import string
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Dict, Optional
 from uuid import UUID
 
 import exceptions
-from DH_encrypt import DHEncrypt
+from DH_encrypt import encrypt
 from db.models import Session, User
 from db.services import DBService, db_service
 from settings import settings
@@ -65,24 +65,15 @@ class ServerService:
         session = self.__db_service.create_session(session)
         return str(session.id)
 
-    def get_secret(self, session_id: UUID, pub_keys: dict) -> int:
+    def get_keys(self) -> Dict[str, int]:
+        return encrypt.server_keys
+
+    def generate_secret(self, session_id: UUID, client_key: int) -> int:
         session = self.__db_service.get_session(session_id)
         session = self.__check_session(session)
-        try:
-            pub_key1 = int(pub_keys["pub_key1"])
-            pub_key2 = int(pub_keys["pub_key2"])
-            partial_key_client = int(pub_keys["partial_key_client"])
-        except:
-            raise exceptions.IncorrectPublicKey
-        encrypt = DHEncrypt(
-            pub_key1,
-            pub_key2,
-            settings.DH_SECRET_KEY
-        )
-        partial_key_server = encrypt.generate_partial_key()
-        session.secret_key = encrypt.generate_full_key(partial_key_client)
+        session.secret_key = encrypt.generate_full_key(client_key)
         self.__db_service.update_session(session)
-        return partial_key_server
+        return encrypt.server_keys
 
     def get_challenge(self, session: UUID) -> str:
         session = self.__db_service.get_session(session)
