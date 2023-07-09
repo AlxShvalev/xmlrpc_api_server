@@ -1,4 +1,4 @@
-import string
+from typing import Dict
 from uuid import UUID
 from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
@@ -22,8 +22,11 @@ class ServerMethods:
         user = server_service.get_user(username, password)
         return server_service.create_session(user)
 
-    def get_secret(self, session_id: UUID, pub_keys) -> int:
-        return server_service.get_secret(session_id, pub_keys)
+    def get_keys(self) -> Dict[str, int]:
+        return server_service.get_keys()
+
+    def generate_secret(self, session_id: UUID, client_key: int) -> int:
+        return server_service.generate_secret(session_id, client_key)
 
     def get_challenge(self, session_id: UUID) -> str:
         return server_service.get_challenge(session_id)
