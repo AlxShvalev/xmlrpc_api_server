@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import random
 import string
 from datetime import datetime, timedelta
@@ -38,29 +40,43 @@ class ServerService:
             raise Exception("Session is expired. Please sign in again.")
         return session
 
+    def __check_challenge_signature(
+            self,
+            challenge_signature: str,
+            session: Session
+    ):
+        secret = session.secret_key
+        challenge = session.challenge
+        signature = hmac.new(bytes(secret), challenge.encode(), hashlib.sha256)
+        if signature.hexdigest() != challenge_signature:
+            raise Exception("Incorrect challenge signature. "
+                            "Authorization failed.")
+        return challenge
+
     def create_session(self, user: User) -> str:
         session = self.__db_service.get_session_by_user_id(user.id)
         if session:
             return str(session.id)
         session = Session(
             user_id=user.id,
-            expired_date=datetime.now() + timedelta(seconds=settings.SESSION_LIFETIME),
+            expired_date=(datetime.now() +
+                          timedelta(seconds=settings.SESSION_LIFETIME),)
         )
         session = self.__db_service.create_session(session)
         return str(session.id)
 
-    def get_partial_key(self, session_id: UUID, pub_keys: dict) -> int:
+    def get_secret(self, session_id: UUID, pub_keys: dict) -> int:
         session = self.__db_service.get_session(session_id)
         session = self.__check_session(session)
         try:
-            pub_key_1 = int(pub_keys["pub_key1"])
-            pub_key_2 = int(pub_keys["pub_key2"])
+            pub_key1 = int(pub_keys["pub_key1"])
+            pub_key2 = int(pub_keys["pub_key2"])
             partial_key_client = int(pub_keys["partial_key_client"])
         except:
             raise Exception("Required public keys are missing or not integer.")
         encrypt = DHEncrypt(
-            pub_key_1,
-            pub_key_2,
+            pub_key1,
+            pub_key2,
             settings.DH_SECRET_KEY
         )
         partial_key_server = encrypt.generate_partial_key()
@@ -75,6 +91,21 @@ class ServerService:
         session.challenge = challenge
         self.__db_service.update_session(session)
         return challenge
+
+    def get_data(
+            self,
+            session_id: UUID,
+            data_key: str,
+            challenge_signature: string
+    ) -> str:
+        session = self.__db_service.get_session(session_id)
+        session = self.__check_session(session)
+        self.__check_challenge_signature(
+            challenge_signature,
+            session
+        )
+        data = self.__db_service.get_data(data_key)
+        return data.data
 
 
 server_service = ServerService(db_service)
