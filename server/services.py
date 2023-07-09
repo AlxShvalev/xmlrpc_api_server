@@ -20,6 +20,11 @@ def generate_random_string() -> str:
     return ''.join(random.choice(letters) for i in range(length))
 
 
+def generate_signature(key: int, data: str) -> str:
+    signature = hmac.new(bytes(key), data.encode(), hashlib.sha256)
+    return signature.hexdigest()
+
+
 class ServerService:
 
     def __init__(self, service: DBService) -> None:
@@ -49,8 +54,8 @@ class ServerService:
     ):
         secret = session.secret_key
         challenge = session.challenge
-        signature = hmac.new(bytes(secret), challenge.encode(), hashlib.sha256)
-        if signature.hexdigest() != challenge_signature:
+        signature = generate_signature(secret, challenge)
+        if signature != challenge_signature:
             raise exceptions.IncorrectChallengeSignature
         return challenge
 
