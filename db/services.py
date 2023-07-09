@@ -10,14 +10,14 @@ class DBService:
     def __init__(self, db_session: DbSession):
         self.__db_session = db_session
 
-    def get_user(self, username) -> User:
+    def get_user(self, username: str) -> User:
         stmt = select(User).where(User.username == username)
         user = self.__db_session.execute(stmt)
         return user.scalars().first()
 
-    def get_data(self, key) -> Data:
+    def get_data(self, key: str) -> Data:
         stmt = select(Data).where(Data.key == key)
-        data = self.db_session.execute(stmt)
+        data = self.__db_session.execute(stmt)
         return data.scalars().first()
 
     def get_session(self, session_id: UUID) -> Session:
