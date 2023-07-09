@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
 
+import exceptions
 from DH_encrypt import DHEncrypt
 from db.models import Session, User
 from db.services import DBService, db_service
@@ -27,17 +28,17 @@ class ServerService:
     def get_user(self, username: str, password: str) -> User:
         user = self.__db_service.get_user(username)
         if user is None:
-            raise Exception("User not found.")
+            raise exceptions.UserNotFound(username)
         if user.password != password:
-            raise Exception("Password incorrect.")
+            raise exceptions.IncorrectPassword
         return user
 
     def __check_session(self, session: Optional[Session]) -> Session:
         if session is None:
-            raise Exception("Session id is incorrect.")
+            raise exceptions.IncorrectSession
         if session.expired_date < datetime.now():
             self.__db_service.delete_session(session)
-            raise Exception("Session is expired. Please sign in again.")
+            raise exceptions.SessionIsExpired
         return session
 
     def __check_challenge_signature(
@@ -49,8 +50,7 @@ class ServerService:
         challenge = session.challenge
         signature = hmac.new(bytes(secret), challenge.encode(), hashlib.sha256)
         if signature.hexdigest() != challenge_signature:
-            raise Exception("Incorrect challenge signature. "
-                            "Authorization failed.")
+            raise exceptions.IncorrectChallengeSignature
         return challenge
 
     def create_session(self, user: User) -> str:
@@ -73,7 +73,7 @@ class ServerService:
             pub_key2 = int(pub_keys["pub_key2"])
             partial_key_client = int(pub_keys["partial_key_client"])
         except:
-            raise Exception("Required public keys are missing or not integer.")
+            raise exceptions.IncorrectPublicKey
         encrypt = DHEncrypt(
             pub_key1,
             pub_key2,
