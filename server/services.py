@@ -33,7 +33,8 @@ class ServerService:
             raise exceptions.IncorrectPassword
         return user
 
-    def __check_session(self, session: Optional[Session]) -> Session:
+    def __get_session(self, session_id: UUID) -> Session:
+        session = self.__db_service.get_session(session_id)
         if session is None:
             raise exceptions.IncorrectSession
         if session.expired_date < datetime.now():
@@ -68,16 +69,13 @@ class ServerService:
     def get_keys(self) -> Dict[str, int]:
         return encrypt.server_keys
 
-    def generate_secret(self, session_id: UUID, client_key: int) -> int:
-        session = self.__db_service.get_session(session_id)
-        session = self.__check_session(session)
+    def generate_secret(self, session_id: UUID, client_key: int) -> None:
+        session = self.__get_session(session_id)
         session.secret_key = encrypt.generate_full_key(client_key)
         self.__db_service.update_session(session)
-        return encrypt.server_keys
 
-    def get_challenge(self, session: UUID) -> str:
-        session = self.__db_service.get_session(session)
-        session = self.__check_session(session)
+    def get_challenge(self, session_id: UUID) -> str:
+        session = self.__get_session(session_id)
         challenge = generate_random_string()
         session.challenge = challenge
         self.__db_service.update_session(session)
@@ -89,8 +87,7 @@ class ServerService:
             data_key: str,
             challenge_signature: string
     ) -> str:
-        session = self.__db_service.get_session(session_id)
-        session = self.__check_session(session)
+        session = self.__get_session(session_id)
         self.__check_challenge_signature(
             challenge_signature,
             session
