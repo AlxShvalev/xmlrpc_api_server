@@ -69,10 +69,11 @@ class ServerService:
     def get_keys(self) -> Dict[str, int]:
         return encrypt.server_keys
 
-    def generate_secret(self, session_id: UUID, client_key: int) -> None:
+    def generate_secret(self, session_id: UUID, client_key: int) -> int:
         session = self.__get_session(session_id)
         session.secret_key = encrypt.generate_full_key(client_key)
         self.__db_service.update_session(session)
+        return encrypt.partial_key
 
     def get_challenge(self, session_id: UUID) -> str:
         session = self.__get_session(session_id)

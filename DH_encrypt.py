@@ -8,11 +8,12 @@ class DHEncrypt:
         self.pub_key1 = pub_key1
         self.pub_key2 = pub_key2
         self.secret_key = secret_key
+        self.partial_key = None
 
-    @property
-    def partial_key(self) -> int:
+    def generate_partial_key(self) -> int:
         partial_key = self.pub_key1 ** self.secret_key
-        return partial_key % self.pub_key2
+        self.partial_key = partial_key % self.pub_key2
+        return self.partial_key
 
     @property
     def server_keys(self) -> Dict[str, int]:
@@ -33,3 +34,6 @@ encrypt = DHEncrypt(
     settings.PUBLIC_KEY2,
     settings.DH_SECRET_KEY
 )
+
+if encrypt.partial_key is None:
+    encrypt.generate_partial_key()
