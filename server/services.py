@@ -105,6 +105,8 @@ class ServerService:
             session
         )
         data = self.__db_service.get_data(data_key)
+        if data is None:
+            raise exceptions.DataNotFound(data_key)
         return data.data
 
 

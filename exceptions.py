@@ -1,6 +1,6 @@
 class Error(Exception):
     """Base cless for error messages"""
-    detail: str = "Какая-то неизвестная ошибка."
+    detail: str = "Some error occurred."
 
     def __str__(self):
         return self.detail
@@ -11,7 +11,12 @@ class Error(Exception):
 
 class UserNotFound(Error):
     def __init__(self, username: str) -> None:
-        self.detail = f"Пользователь c username '{username}' не найден."
+        self.detail = f"Username '{username}' not found."
+
+
+class DataNotFound(Error):
+    def __init__(self, key: str) -> None:
+        self.detail = f"Data with key '{key}' not found."
 
 
 class IncorrectPassword(Error):
