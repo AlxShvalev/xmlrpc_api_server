@@ -7,7 +7,7 @@ from settings import settings
 
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
-    rpc_server = ("/RPC2")
+    rpc_paths = ("/RPC2",)
 
 
 server = SimpleXMLRPCServer(
