@@ -40,10 +40,11 @@ python main.py
 ---
 ## Описание клиента
 Для работы с сервером используется следующий клиент:
+
 ```python
 from xmlrpc.client import ServerProxy
 
-url = f"http://{settings.SERVER_HOST}:{settings.SERVER_PORT}/RPC2"
+url = f"http://{settings.RPC_SERVER_HOST}:{settings.RPC_SERVER_PORT}/RPC2"
 
 client = ServerProxy(url)
 ```
@@ -51,12 +52,18 @@ client = ServerProxy(url)
 ## Описание методов сервера
 
 ### Метод аутентификации. 
-Метод принимает в качестве аргументов username и password.
+Входные параметры:
+- username (String)
+- password (String).
+
+Выходные параметры:
+- session_id (String)
+
 Если пользователь найден в БД, метод создает для него сессию и 
-возвращает идентификатор сессии (строковое значение).
+возвращает идентификатор сессии (String).
 ```python
 client.auth("username", "password") 
-# 867db577-33d6-49d3-8919-706873214d89
+# "867db577-33d6-49d3-8919-706873214d89"
 ```
 
 ### Метод выработки секрета по алгоритму Диффи-Хеллмана. 
