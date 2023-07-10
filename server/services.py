@@ -3,13 +3,13 @@ import hmac
 import random
 import string
 from datetime import datetime, timedelta
-from typing import Dict, Optional
+from typing import Dict
 from uuid import UUID
 
 import exceptions
-from DH_encrypt import encrypt
 from db.models import Session, User
 from db.services import DBService, db_service
+from dh_algorithm import diffie_hellman
 from settings import settings
 
 
@@ -72,13 +72,13 @@ class ServerService:
         return str(session.id)
 
     def get_keys(self) -> Dict[str, int]:
-        return encrypt.server_keys
+        return diffie_hellman.server_keys
 
     def generate_secret(self, session_id: UUID, client_key: int) -> int:
         session = self.__get_session(session_id)
-        session.secret_key = encrypt.generate_full_key(client_key)
+        session.secret_key = diffie_hellman.generate_full_key(client_key)
         self.__db_service.update_session(session)
-        return encrypt.partial_key
+        return diffie_hellman.partial_key
 
     def get_challenge(self, session_id: UUID) -> str:
         session = self.__get_session(session_id)

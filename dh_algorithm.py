@@ -3,7 +3,7 @@ from typing import Dict
 from settings import settings
 
 
-class DHEncrypt:
+class DHAlgorithm:
     def __init__(self, pub_key1: int, pub_key2: int, secret_key: int) -> None:
         self.pub_key1 = pub_key1
         self.pub_key2 = pub_key2
@@ -11,8 +11,9 @@ class DHEncrypt:
         self.partial_key = None
 
     def generate_partial_key(self) -> int:
-        partial_key = self.pub_key1 ** self.secret_key
-        self.partial_key = partial_key % self.pub_key2
+        if self.partial_key is None:
+            partial_key = self.pub_key1 ** self.secret_key
+            self.partial_key = partial_key % self.pub_key2
         return self.partial_key
 
     @property
@@ -29,11 +30,8 @@ class DHEncrypt:
         return full_key
 
 
-encrypt = DHEncrypt(
+diffie_hellman = DHAlgorithm(
     settings.PUBLIC_KEY1,
     settings.PUBLIC_KEY2,
     settings.DH_SECRET_KEY
 )
-
-if encrypt.partial_key is None:
-    encrypt.generate_partial_key()

@@ -1,6 +1,6 @@
 from xmlrpc.client import ServerProxy
 
-from DH_encrypt import DHEncrypt
+from dh_algorithm import DHAlgorithm
 from settings import settings
 from server.services import generate_signature
 
@@ -18,7 +18,7 @@ try:
     pub_key1 = keys.get("pub_key1")
     pub_key2 = keys.get("pub_key2")
     server_part_key = keys.get("part_key")
-    client_encrypt = DHEncrypt(pub_key1, pub_key2, secret_key_client)
+    client_encrypt = DHAlgorithm(pub_key1, pub_key2, secret_key_client)
     client_part_key = client_encrypt.generate_partial_key()
     client.generate_secret(session_id, client_part_key)
     secret = client_encrypt.generate_full_key(server_part_key)
