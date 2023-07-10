@@ -9,7 +9,7 @@ from uuid import UUID
 import exceptions
 from db.models import Session, User
 from db.services import DBService, db_service
-from dh_algorithm import diffie_hellman
+from dh_algorithm import dh_server
 from settings import settings
 
 
@@ -71,14 +71,15 @@ class ServerService:
         session = self.__db_service.create_session(session)
         return str(session.id)
 
-    def get_keys(self) -> Dict[str, int]:
-        return diffie_hellman.server_keys
+    def get_pub_keys(self) -> Dict[str, int]:
+        return dh_server.public_keys
 
-    def generate_secret(self, session_id: UUID, client_key: int) -> int:
+    def partial_keys_exchange(self, session_id: UUID, client_key: int) -> int:
         session = self.__get_session(session_id)
-        session.secret_key = diffie_hellman.generate_full_key(client_key)
+        session.secret_key = dh_server.generate_full_key(client_key)
         self.__db_service.update_session(session)
-        return diffie_hellman.partial_key
+        dh_server.generate_partial_key()
+        return dh_server.partial_key
 
     def get_challenge(self, session_id: UUID) -> str:
         session = self.__get_session(session_id)

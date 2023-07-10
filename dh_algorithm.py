@@ -17,20 +17,18 @@ class DHAlgorithm:
         return self.partial_key
 
     @property
-    def server_keys(self) -> Dict[str, int]:
+    def public_keys(self) -> Dict[str, int]:
         return {
             "pub_key1": self.pub_key1,
             "pub_key2": self.pub_key2,
-            "part_key": self.partial_key
         }
 
     def generate_full_key(self, partial_key_client: int) -> int:
         full_key = partial_key_client ** self.secret_key
-        full_key = full_key % self.pub_key2
-        return full_key
+        return full_key % self.pub_key2
 
 
-diffie_hellman = DHAlgorithm(
+dh_server = DHAlgorithm(
     settings.PUBLIC_KEY1,
     settings.PUBLIC_KEY2,
     settings.DH_SECRET_KEY
