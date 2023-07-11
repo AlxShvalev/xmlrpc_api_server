@@ -1,4 +1,6 @@
 class Settings:
+    """Base application settings class."""
+
     SERVER_HOST: str = "localhost"
     SERVER_PORT: int = 8080
 
