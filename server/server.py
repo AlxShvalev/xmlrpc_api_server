@@ -12,9 +12,7 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
 
 server = SimpleXMLRPCServer(
     (settings.SERVER_HOST, settings.SERVER_PORT),
-    requestHandler=RequestHandler,
-    allow_none=True,
-    logRequests=True
+    requestHandler=RequestHandler
 )
 
 
