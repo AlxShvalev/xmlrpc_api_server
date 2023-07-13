@@ -14,7 +14,7 @@ class Settings:
     DB_NAME: str = os.getenv("DB_NAME", "postgres")
     DB_USER: str = os.getenv("DB_USER", "postgres")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "postgres")
-    DB_HOST: str = os.getenv("DB_PORT", "localhost")
+    DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: str = os.getenv("DB_PORT", "5432")
 
     SESSION_LIFETIME: int = 60 * 30 # Seconds
@@ -23,7 +23,8 @@ class Settings:
 
     PUBLIC_KEY1: int = 28491
     PUBLIC_KEY2: int = 6007
-    DH_SECRET_KEY: int = os.getenv("DH_SECRET_KEY", 221)
+    DH_SECRET_KEY: int = int(os.getenv("DH_SECRET_KEY", 221))
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "somesecretkey")
 
     @property
     def database_url(self) -> str:

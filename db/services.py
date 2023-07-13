@@ -18,6 +18,13 @@ class DBService:
         user = self.__db_session.execute(stmt)
         return user.scalars().first()
 
+    def create_user(self, user: User) -> User:
+        """Create new user in database."""
+        self.__db_session.add(user)
+        self.__db_session.commit()
+        self.__db_session.refresh(user)
+        return user
+
     def get_data(self, key: str) -> Data:
         """Get data from DB by data key."""
         stmt = select(Data).where(Data.key == key)

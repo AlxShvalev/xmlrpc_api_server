@@ -21,7 +21,7 @@ def generate_random_string() -> str:
     return ''.join(random.choice(letters) for i in range(length))
 
 
-def generate_signature(key: int, data: str) -> str:
+def generate_signature(key: bytes, data: str) -> str:
     """Generate signature for data by key."""
     signature = hmac.new(bytes(key), data.encode(), hashlib.sha256)
     return signature.hexdigest()
@@ -33,12 +33,24 @@ class ServerService:
     def __init__(self, service: DBService) -> None:
         self.__db_service = service
 
+    def rester_user(self, username: str, password: str) -> str:
+        """Register user if not exists. Create session for new user. Return session id."""
+        user = self.__db_service.get_user(username)
+        if user:
+            print(user)
+            raise exceptions.UserAlreadyExists(username)
+        hashed_password = generate_signature(settings.SECRET_KEY.encode(), password)
+        user = User(username=username, password=hashed_password)
+        user = self.__db_service.create_user(user)
+        return self.create_session(user)
+
     def get_user(self, username: str, password: str) -> User:
         """Get user from DB. If user is not found or password is incorrect, raise exception."""
         user = self.__db_service.get_user(username)
         if user is None:
             raise exceptions.UserNotFound(username)
-        if user.password != password:
+        hashed_password = generate_signature(settings.SECRET_KEY.encode(), password)
+        if hashed_password != user.password:
             raise exceptions.IncorrectPassword
         return user
 
@@ -58,7 +70,7 @@ class ServerService:
             session: Session
     ):
         """Check challenge signature by secret. If signature is incorrect, raise exception."""
-        secret = session.secret_key
+        secret = bytes(session.secret_key)
         challenge = session.challenge
         signature = generate_signature(secret, challenge)
         if signature != challenge_signature:

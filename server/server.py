@@ -19,6 +19,10 @@ server = SimpleXMLRPCServer(
 class ServerMethods:
     """Class for routing XML-RPC server."""
 
+    def register_user(self, username: str, password: str) -> str:
+        """Register new user. Create session for new user."""
+        return server_service.rester_user(username, password)
+
     def auth(self, username, password):
         """Request for user authorization.
         If authorization success, create session for user and return session id.

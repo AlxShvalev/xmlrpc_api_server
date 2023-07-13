@@ -14,6 +14,11 @@ class UserNotFound(Error):
         self.detail = f"Username '{username}' not found."
 
 
+class UserAlreadyExists(Error):
+    def __init__(self, username: str) -> None:
+        self.detail = f"User with username '{username}' already exists."
+
+
 class DataNotFound(Error):
     def __init__(self, key: str) -> None:
         self.detail = f"Data with key '{key}' not found."
